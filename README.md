@@ -11,6 +11,8 @@ CortexAI is a modern intelligence dashboard that transforms how you interact wit
 
 It also features a robust **Database Explorer** to navigate and inspect the underlying schema of the **Pagila** dataset (a DVD Rental Store simulation).
 
+[**🚀 Live Demo**](https://cortex-ai-tawny.vercel.app/)
+
 ## ✨ Features
 
 - **🤖 Natural Language to SQL**: Ask complex questions like *"Which movies have the highest replacement cost?"* and get accurate results instantly.
