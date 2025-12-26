@@ -147,7 +147,7 @@ export default function SchemaGraph() {
   );
 
   return (
-    <div className="w-full h-[600px] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
+    <div className="w-full h-[600px] bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -159,7 +159,17 @@ export default function SchemaGraph() {
         attributionPosition="bottom-right"
       >
         <Background gap={12} size={1} color="#334155" />
-        <Controls className="!bg-slate-800 !border-slate-700 !fill-white" />
+        <Controls 
+            className="!bg-slate-800 !border-slate-700 shadow-xl" 
+            style={{ 
+                fill: 'white', 
+                color: 'white',
+                '--xy-controls-button-background-color': '#1e293b',
+                '--xy-controls-button-background-color-hover': '#334155',
+                '--xy-controls-button-color': 'white',
+                '--xy-controls-button-border-color': '#334155'
+            } as React.CSSProperties} 
+        />
         <MiniMap 
             nodeColor="#6366f1" 
             maskColor="rgba(15, 23, 42, 0.7)" 
