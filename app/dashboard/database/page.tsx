@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Database, Table as TableIcon, ArrowLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import SchemaGraph from './schema-graph';
 
 export default function DatabaseExplorer() {
   const [tables, setTables] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [view, setView] = useState<'grid' | 'visual'>('visual');
 
   useEffect(() => {
     fetchTables();
@@ -56,6 +58,25 @@ export default function DatabaseExplorer() {
             This is the <strong className="text-indigo-400">Pagila</strong> database (a PostgreSQL port of Sakila), representing a fully functional <strong>DVD Rental Store</strong> business. 
             It connects <strong>films, actors, and categories</strong> with <strong>customer rentals, payments, and inventory</strong>, making it perfect for demonstrating complex SQL queries and business logic.
           </p>
+
+        </div>
+
+        {/* View Toggle */}
+        <div className="flex justify-center mb-8">
+            <div className="bg-slate-900/50 p-1 rounded-lg border border-slate-800 flex gap-1">
+                <button
+                    onClick={() => setView('visual')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${view === 'visual' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white'}`}
+                >
+                    Visual Graph
+                </button>
+                <button
+                    onClick={() => setView('grid')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${view === 'grid' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white'}`}
+                >
+                    Table List
+                </button>
+            </div>
         </div>
 
         {loading ? (
@@ -67,37 +88,49 @@ export default function DatabaseExplorer() {
             Error: {error}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tables.map((table, i) => (
-              <Link key={table} href={`/dashboard/database/${table}`}>
+          <>
+            {view === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {tables.map((table, i) => (
+                    <Link key={table} href={`/dashboard/database/${table}`}>
+                        <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="group relative bg-slate-900/40 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 transition-all hover:bg-slate-800/60 overflow-hidden"
+                        >
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        
+                        <div className="relative flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 group-hover:text-indigo-400 group-hover:border-indigo-500/30 transition-colors">
+                                <TableIcon size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-200 group-hover:text-white transition-colors">
+                                {table}
+                                </h3>
+                                <p className="text-sm text-slate-500 group-hover:text-slate-400">
+                                Public Table
+                                </p>
+                            </div>
+                            </div>
+                            <ChevronRight className="text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
+                        </div>
+                        </motion.div>
+                    </Link>
+                    ))}
+                </div>
+            ) : (
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="group relative bg-slate-900/40 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-6 transition-all hover:bg-slate-800/60 overflow-hidden"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-1 bg-slate-800/50 rounded-2xl border border-slate-700/50 backdrop-blur-sm"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  
-                  <div className="relative flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 group-hover:text-indigo-400 group-hover:border-indigo-500/30 transition-colors">
-                        <TableIcon size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-slate-200 group-hover:text-white transition-colors">
-                          {table}
-                        </h3>
-                        <p className="text-sm text-slate-500 group-hover:text-slate-400">
-                          Public Table
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronRight className="text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
-                  </div>
+                    <SchemaGraph />
                 </motion.div>
-              </Link>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </main>
     </div>
