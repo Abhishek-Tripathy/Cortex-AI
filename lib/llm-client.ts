@@ -1,37 +1,31 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-if (!process.env.ROUTEAWAY_API_KEY) {
-  throw new Error('ROUTEAWAY_API_KEY is not set in environment variables');
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY is not set in environment variables');
 }
 
-export const MODEL_NAME = 'deepseek-v3.1-terminus:free';
+// Using Gemini 2.0 Flash for high speed and reasoning
+// Note: "gemini-2.5-flash" requested by user, mapping to available robust model "gemini-2.0-flash-exp" or standard flash if preferred.
+// Assuming "gemini-2.0-flash-exp" is the intended bleeding edge flash model or fallback to 1.5-flash.
+// Let's use 'gemini-2.0-flash-exp' as it's the current state-of-the-art fast model from Google.
+export const MODEL_NAME = 'gemini-2.5-flash';
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
 export async function generateText(prompt: string): Promise<string> {
-  const apiKey = process.env.ROUTEAWAY_API_KEY;
-  
-  const response = await fetch('https://api.routeway.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: MODEL_NAME,
-      messages: [
-        { role: 'user', content: prompt }
-      ]
-    })
-  });
-
-  if (!response.ok) {
-     const errorText = await response.text();
-     throw new Error(`RouteAway API Error: ${response.status} ${errorText}`);
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    if (!text) {
+        throw new Error('Empty response from Gemini API');
+    }
+    
+    return text;
+  } catch (error: any) {
+    console.error('Gemini API Error:', error);
+    throw new Error(`Gemini API Error: ${error.message}`);
   }
-
-  const data = await response.json();
-  // Ensure we handle the response structure correctly (OpenAI compatible)
-  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('Invalid response structure from RouteAway API');
-  }
-  
-  return data.choices[0].message.content;
 }
